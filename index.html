@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="theme-color" content="#1F4E3D">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>African Gameskin Group — Monthly Management Account</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -163,7 +167,8 @@
   }
   .kpi-value{
     font-family:'Fraunces',serif; font-weight:600;
-    font-size:24px; color:var(--forest-deep);
+    font-size: clamp(13px, 4.5vw, 24px); color:var(--forest-deep);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .kpi-value.negative{ color:var(--rust); }
   .kpi-sub{ font-size:12px; color:var(--ink-soft); margin-top:4px; }
@@ -198,11 +203,27 @@
     text-align:left; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
     color:var(--ink-soft); font-weight:700;
     padding:6px 8px; border-bottom:1px solid var(--parchment-line);
+    white-space:nowrap;
   }
   td{ padding:7px 8px; border-bottom:1px solid #EFE8D8; }
   tr:last-child td{ border-bottom:none; }
-  td.num, th.num{ text-align:right; }
+  td.num, th.num{ text-align:right; white-space:nowrap; }
   tr.total td{ font-weight:700; color:var(--forest-deep); border-top:1.5px solid var(--leather); background:#FBF7EE; }
+
+  .panel-body{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+  .scroll-hint{
+    display:none;
+    font-size:11px; color:var(--ink-soft); font-style:italic;
+    padding:0 18px 8px;
+  }
+
+  #isWithStockTable{ min-width:600px; }
+  #isWithStockTable th:first-child, #isWithStockTable td:first-child{
+    position:sticky; left:0; background:var(--card);
+    box-shadow: 2px 0 4px -2px rgba(43,36,28,0.12);
+  }
+  #isWithStockTable tr.total td:first-child{ background:#FBF7EE; }
 
   .branch-row{ display:flex; align-items:center; gap:10px; padding:7px 0; }
   .branch-name{ width:88px; font-size:13px; font-weight:600; flex-shrink:0; }
@@ -232,8 +253,13 @@
     .two-col{ grid-template-columns:1fr; }
     header.masthead{ padding:28px 5vw 22px; }
     main, footer{ padding:0 5vw; }
-    .kpi-value{ font-size:19px; }
+    /* kpi-value font-size handled by clamp() above */
     .month-hero{ flex-direction:column; gap:6px; }
+    .tab{ padding:13px 18px 12px; font-size:12.5px; }
+    .tab.active{ padding-top:15px; }
+    .scroll-hint.mobile-only{ display:block; }
+    table{ font-size:12.5px; }
+    .panel-head{ font-size:11px; }
   }
 </style>
 </head>
@@ -313,7 +339,8 @@
 
   <section class="panel">
     <div class="panel-head">Income Statement — Month by Month (with Stock)</div>
-    <div class="panel-body" style="overflow-x:auto;">
+    <p class="scroll-hint mobile-only">Swipe left/right to see all months →</p>
+    <div class="panel-body">
       <table id="isWithStockTable">
         <thead><tr id="isWithStockHead"></tr></thead>
         <tbody id="isWithStockBody"></tbody>

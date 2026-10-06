@@ -225,6 +225,14 @@
   }
   #isWithStockTable tr.total td:first-child{ background:#FBF7EE; }
 
+
+  .m2-legend{ display:flex; flex-wrap:wrap; gap:8px 22px; margin-bottom:10px; font-size:13px; }
+  .m2-legend span.sw{ display:inline-block; width:22px; height:3px; border-radius:2px; vertical-align:middle; margin-right:7px; }
+  .m2-legend b{ font-weight:700; color:var(--forest-deep); }
+  #m2Chart svg{ display:block; width:100%; height:auto; }
+  #m2Chart text{ font-family:'Inter',sans-serif; fill:var(--ink-soft); font-size:11px; }
+  .m2-note{ font-size:13px; color:var(--ink); padding:10px 0 4px; border-top:1px solid var(--parchment-line); margin-top:8px; }
+
   .chg-pos{ color:#3E7C5A; font-weight:600; }
   .chg-neg{ color:var(--rust); font-weight:600; }
 
@@ -348,6 +356,15 @@
         <thead><tr id="isWithStockHead"></tr></thead>
         <tbody id="isWithStockBody"></tbody>
       </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">Sales in m² by Month — March to February</div>
+    <div class="panel-body">
+      <div class="m2-legend" id="m2Legend"></div>
+      <div id="m2Chart"></div>
+      <div class="m2-note" id="m2Note"></div>
     </div>
   </section>
 
@@ -570,6 +587,60 @@ function renderYoY(){
     return `<tr class="${isTotal ? 'total' : ''}"><td>${label}</td><td class="num">${disp26}</td><td class="num">${disp25}</td><td class="num ${chgClass}">${dispChg}</td></tr>`;
   }).join("");
 }
+
+const M2_SALES = {"2025": [23102, 27697, 26480, 23909, 28833, 27842, 26133, 34106, 36545, 21378, 18775, 24469], "2026": [26530, 24346, 28791, 26422, 31387, 28262, 27360, 38596, 36385, 17013, 19422, 30299], "2027": [24919, 23574, 26938, 28111, 31267, 27680, 30255]};
+const M2_MONTHS = ["Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb"];
+const M2_STYLE = {
+  "2025": {color:"#C2A878", width:2,   label:"2025"},
+  "2026": {color:"#A6693D", width:2.2, label:"2026"},
+  "2027": {color:"#1F4E3D", width:3.2, label:"2027"},
+};
+
+function renderM2Chart(){
+  const host = document.getElementById('m2Chart');
+  const W = Math.max(host.clientWidth || 600, 300);
+  const H = W < 520 ? 270 : 340;
+  const m = {l:44, r:14, t:12, b:28};
+  const yMin = 10000, yMax = 40000;
+  const x = i => m.l + i * (W - m.l - m.r) / 11;
+  const y = v => m.t + (1 - (v - yMin) / (yMax - yMin)) * (H - m.t - m.b);
+
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly m2 sold, 2025 vs 2026 vs 2027">`;
+  for (let v = yMin; v <= yMax; v += 5000){
+    s += `<line x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}" stroke="#E1D6BC" stroke-width="1"/>`;
+    s += `<text x="${m.l-8}" y="${y(v)+4}" text-anchor="end">${v/1000}k</text>`;
+  }
+  M2_MONTHS.forEach((mo,i)=>{ s += `<text x="${x(i)}" y="${H-8}" text-anchor="middle">${mo}</text>`; });
+
+  ["2025","2026","2027"].forEach(yr=>{
+    const st = M2_STYLE[yr], vals = M2_SALES[yr];
+    let path = "";
+    vals.forEach((v,i)=>{ if (v!=null) path += (path ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1) + " "; });
+    s += `<path d="${path}" fill="none" stroke="${st.color}" stroke-width="${st.width}" stroke-linejoin="round" stroke-linecap="round"/>`;
+    vals.forEach((v,i)=>{
+      if (v==null) return;
+      const r = yr==="2027" ? 4 : 2.5;
+      s += `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="${r}" fill="${st.color}"><title>${yr} ${M2_MONTHS[i]}: ${v.toLocaleString('en-ZA')} m²</title></circle>`;
+    });
+  });
+  s += `</svg>`;
+  host.innerHTML = s;
+
+  const tot = yr => M2_SALES[yr].reduce((a,v)=>a+(v||0),0);
+  document.getElementById('m2Legend').innerHTML =
+    `<div><span class="sw" style="background:${M2_STYLE['2025'].color}"></span>2025 · <b>${tot('2025').toLocaleString('en-ZA')} m²</b></div>` +
+    `<div><span class="sw" style="background:${M2_STYLE['2026'].color}"></span>2026 · <b>${tot('2026').toLocaleString('en-ZA')} m²</b></div>` +
+    `<div><span class="sw" style="background:${M2_STYLE['2027'].color}"></span>2027 so far · <b>${tot('2027').toLocaleString('en-ZA')} m²</b></div>`;
+
+  const n = M2_SALES["2027"].filter(v=>v!=null).length;
+  const ytd = yr => M2_SALES[yr].slice(0,n).reduce((a,v)=>a+v,0);
+  const pct = (a,b) => ((a-b)/b*100);
+  const fmt = p => (p>=0?'+':'') + p.toFixed(1) + '%';
+  document.getElementById('m2Note').innerHTML =
+    `<b>Mar–${M2_MONTHS[n-1]}:</b> 2027 ${ytd('2027').toLocaleString('en-ZA')} m² · 2026 ${ytd('2026').toLocaleString('en-ZA')} m² (${fmt(pct(ytd('2027'),ytd('2026')))}) · 2025 ${ytd('2025').toLocaleString('en-ZA')} m² (${fmt(pct(ytd('2027'),ytd('2025')))})`;
+}
+let _m2t; window.addEventListener('resize', ()=>{ clearTimeout(_m2t); _m2t = setTimeout(renderM2Chart, 120); });
+renderM2Chart();
 </script>
 </body>
 </html>

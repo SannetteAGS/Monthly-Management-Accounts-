@@ -372,11 +372,11 @@
   </section>
 
   <section class="panel">
-    <div class="panel-head">Year-on-Year — March to September, 2026 vs 2025</div>
+    <div class="panel-head">Year-on-Year — March to October, 2026 vs 2025</div>
     <p class="scroll-hint mobile-only">Swipe left/right to see all columns →</p>
     <div class="panel-body">
       <table style="min-width:520px;">
-        <thead><tr><th></th><th class="num">Mar–Sep 2026</th><th class="num">Mar–Sep 2025</th><th class="num">Change</th></tr></thead>
+        <thead><tr><th></th><th class="num">Mar–Oct 2026</th><th class="num">Mar–Oct 2025</th><th class="num">Change</th></tr></thead>
         <tbody id="yoyBody"></tbody>
       </table>
     </div>
@@ -526,7 +526,7 @@ function renderMonth(month){
 
 document.getElementById('genNote').textContent = "Dashboard covers " + MONTH_ORDER[0] + " – " + MONTH_ORDER[MONTH_ORDER.length-1];
 renderMonth(MONTH_ORDER[MONTH_ORDER.length-1]);
-const YOY = {"2026": {"sales": 65903657.37, "cost_of_sales": 53871645.76, "gross_profit": 12032011.61, "other_income": 2080137.69, "expenses": 7195825.84, "net_profit": 6916323.46, "gp_pct": 0.18256970993960484, "net_profit_pct": 0.1049459731979667}, "2025": {"sales": 63976144.27, "cost_of_sales": 56406491.61, "gross_profit": 7569652.66, "other_income": 1583552.82, "expenses": 6385604.21, "net_profit": 2767601.27, "gp_pct": 0.11831992606577883, "net_profit_pct": 0.043259894787029185}};
+const YOY = {"2026": {"sales": 77577855.94, "cost_of_sales": 58925311.3, "gross_profit": 18652544.64, "other_income": 2403123.85, "expenses": 8092491.75, "net_profit": 12963176.74, "gp_pct": 0.24043645462986485, "net_profit_pct": 0.16709893026723935}, "2025": {"sales": 76685366.35, "cost_of_sales": 65719139.75, "gross_profit": 10966226.6, "other_income": 1874034.11, "expenses": 7417415.24, "net_profit": 5422845.47, "gp_pct": 0.143002858589069, "net_profit_pct": 0.07071551885466086}};
 renderIncomeStatementWithStock();
 renderYoY();
 
